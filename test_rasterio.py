@@ -3,6 +3,9 @@ import rasterio.plot as rioplt
 import numpy as np
 import matplotlib.pyplot as plt
 
+def filename():
+    return 'data/RGB.byte.tif'
+
 def info(dataset):
     print('File:', dataset.name)
     print('Driver:', dataset.driver)
@@ -46,7 +49,7 @@ def showt():
 
 
 def main(): 
-    dataset = open('rifle.tif')
+    dataset = open( filename() )
     x,y,z = grid(dataset)
     plot(x,y,z)
 
