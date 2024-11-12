@@ -1,22 +1,17 @@
-import glob
 from rasterio import open
-from rasterio.plot import show
 from pprint import pprint
-import matplotlib.pyplot as plt
+import rasterio.plot as rplt
 import numpy as np
 
-def error(actual, observed):
-    return np.abs((observed - actual)/actual)*100
+import matplotlib.pyplot as plt
+from matplotlib.widgets  import RectangleSelector
 
-def printError(actual, observed):
-    print('|', actual,' - ', observed, '| = ', np.abs(observed - actual), ' ', error(actual, observed), '%')
+from matplotlib import cbook, cm
+from matplotlib.colors import LightSource
 
-def wait():
-    print("Press any key to continue...")
-    input()
-
-def list(pattern):
-    return glob.glob(pattern)
+g_figure_size = (18, 18) # Inches
+g_surface_count = 200 # Points
+g_selected_rectangle = []
 
 def size(dataset):
     n = dataset.width
@@ -46,6 +41,9 @@ def resolution(dataset):
     sy = -dataset.transform[4]
     return sx, sy
 
+def nodata(database):
+    return database.nodata
+
 def info(dataset):
     nx, ny = size(dataset)
     lx, ly = length(dataset)
@@ -69,50 +67,42 @@ def info(dataset):
     print('Nodata', dataset.nodata)
     pprint(dataset.profile)
 
-def grid(dataset, band=1):
+def show(dataset, colormap = cm.gist_earth, block=True):
+    global g_selected_rectangle
+    fig = plt.figure(figsize=g_figure_size)
+    ax = fig.add_subplot(1,1,1)
+    if dataset.count == 1:
+        rplt.show(dataset, ax=ax, cmap = colormap)
+    else:
+        rplt.show(dataset, ax=ax)
+    plt.tight_layout()
+    plt.grid()
+
+    g_selected_rectangle = []
+    def showSelectorCallback(eclick, erelease):
+        global g_selected_rectangle
+        x1, y1 = eclick.xdata, eclick.ydata
+        x2, y2 = erelease.xdata, erelease.ydata
+        x = min(x1,x2)
+        y = min(y1,y2)
+        w = np.abs(x1-x2)
+        h = np.abs(y1-y2)
+        g_selected_rectangle = [x,y,w,h]
+    rs = RectangleSelector(ax, showSelectorCallback, 
+                           drawtype='box', useblit=False, button=[1], 
+                           minspanx=5, minspany=5, spancoords='data', 
+                           interactive=True)
+
+    plt.show(block=block)
+    return g_selected_rectangle
+
+def grid(dataset, band=1, nodata=False):
     xmin, ymin, xmax, ymax = bounds(dataset)
     n,m = size(dataset)
-    xr = np.linspace( xmin, xmax, n)
-    yr = np.linspace( ymin, ymax, m)
-    x, y = np.meshgrid(xr, yr) 
+    x = np.linspace( xmin, xmax, n)
+    y = np.linspace( ymin, ymax, m)
+    x, y = np.meshgrid(x, y) 
     z = dataset.read(band)
+    if nodata:
+        z[z==dataset.nodata] = np.nan
     return x, y, z
-
-def plot(x,y,z):
-    plt.figure()
-    plt.imshow(z, cmap = 'jet')
-    plt.show(block=False)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d', proj_type = 'ortho')
-    ax.plot_surface(x, y, z, cmap='jet',linewidth=0, antialiased=False)
-    ax.set_position([0, 0, 1, 1])
-    ax.set_box_aspect(aspect=(1, 1, 1))
-    ax.view_init(90, -90, 0)
-    ax.set_aspect('equal')
-
-    plt.grid()
-    plt.show()
-
-def annotate(dataset, block = False):
-    fig = plt.figure(figsize=(18,18))
-    ax = fig.add_subplot(1,1,1)
-
-    if dataset.count == 1:
-        show(dataset, ax=ax, cmap = 'Greys_r')
-    else:
-        show(dataset, ax=ax)
-
-    plt.tight_layout()
-    plt.show(block=block)
-
-def main(): 
-    files = list('rifle/*.tif*')
-    for file in files:
-        dataset = open( file )
-        info(dataset)
-        annotate(dataset, True)
-    wait()
-    
-if __name__ == "__main__":
-    main()
