@@ -39,10 +39,13 @@ def gradient(x,y,z):
     gx, gy = np.gradient(z, dx, dy)
     return gx, gy 
 
-def show(x, y, z, colormap = cm.jet, block=False):
+def show(x, y=[], z=[], colormap = cm.jet, block=False):
     fig = plt.figure(figsize=g_figure_size)
     ax = fig.add_subplot()
-    ax.imshow(z, cmap=colormap)
+    if not y or not z:
+        ax.imshow(x, cmap=colormap)
+    else:
+        ax.imshow(z, cmap=colormap)
     ax.set_axis_off()
     ax.grid()
     plt.show(block=block)

@@ -14,30 +14,35 @@ def main():
     gt.info(satellite)
     gt.show(satellite)
 
+    masked = gt.open('data/rifle/satellite-masked.tif')
+    gt.info(masked)
+    gt.show(masked)
+    
+
     terrain = gt.open('data/rifle/terrain-masked.tif')
     gt.info(terrain)
     gt.show(terrain)
     
-    x,y,z = gt.grid(terrain, nodata = True)
-    gd.plot(x,y,z)
+    #x,y,z = gt.grid(terrain, nodata = True)
+    #gd.plot(x,y,z)
     
-    zmin, zmax = gd.range(z)
-    print('Elevation:', toFoot(zmax-zmin),'ft')
+    #zmin, zmax = gd.range(z)
+    #print('Elevation:', toFoot(zmax-zmin),'ft')
     
-    ux, uy = gd.gradient(x,y,z)
-    u = np.sqrt(np.power(ux,2) + np.power(uy,2))
-    gd.plot(x,y,u)
+    #ux, uy = gd.gradient(x,y,z)
+    #u = np.sqrt(np.power(ux,2) + np.power(uy,2))
+    #gd.plot(x,y,u)
 
-    print('------------------------------------')
-    print('Satellite:', satellite.shape)
-    print('Terrain:', terrain.shape)
-    print('x:', x.shape)
-    print('y:', y.shape)
-    print('z:', z.shape)
-    print('ux:', ux.shape)
-    print('uy:', uy.shape)
-    print('u:', u.shape)
-    print('------------------------------------')
+    #print('------------------------------------')
+    #print('Satellite:', satellite.shape)
+    #print('Terrain:', terrain.shape)
+    #print('x:', x.shape)
+    #print('y:', y.shape)
+    #print('z:', z.shape)
+    #print('ux:', ux.shape)
+    #print('uy:', uy.shape)
+    #print('u:', u.shape)
+    #print('------------------------------------')
 
     sys.pause()
     

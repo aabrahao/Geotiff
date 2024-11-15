@@ -14,9 +14,9 @@ g_surface_count = 200 # Points
 g_selected_rectangle = []
 
 def size(dataset):
-    n = dataset.width
-    m = dataset.height
-    return n, m
+    nx = dataset.height
+    ny = dataset.width
+    return nx, ny
 
 def bounds(dataset):
     xmin = dataset.bounds.left
@@ -75,26 +75,27 @@ def show(dataset, colormap = cm.gist_earth, block=True):
         rplt.show(dataset, ax=ax, cmap = colormap)
     else:
         rplt.show(dataset, ax=ax)
+
     plt.tight_layout()
     plt.grid()
 
-    g_selected_rectangle = []
-    def showSelectorCallback(eclick, erelease):
-        global g_selected_rectangle
-        x1, y1 = eclick.xdata, eclick.ydata
-        x2, y2 = erelease.xdata, erelease.ydata
-        x = min(x1,x2)
-        y = min(y1,y2)
-        w = np.abs(x1-x2)
-        h = np.abs(y1-y2)
-        g_selected_rectangle = [x,y,w,h]
-    rs = RectangleSelector(ax, showSelectorCallback, 
-                           drawtype='box', useblit=False, button=[1], 
-                           minspanx=5, minspany=5, spancoords='data', 
-                           interactive=True)
+    #g_selected_rectangle = []
+    #def showSelectorCallback(eclick, erelease):
+    #    global g_selected_rectangle
+    #    x1, y1 = eclick.xdata, eclick.ydata
+    #    x2, y2 = erelease.xdata, erelease.ydata
+    #    x = min(x1,x2)
+    #    y = min(y1,y2)
+    #    w = np.abs(x1-x2)
+    #    h = np.abs(y1-y2)
+    #    g_selected_rectangle = [x,y,w,h]
+    #rs = RectangleSelector(ax, showSelectorCallback, 
+    #                       drawtype='box', useblit=False, button=[1], 
+    #                       minspanx=5, minspany=5, spancoords='data', 
+    #                       interactive=True)
 
     plt.show(block=block)
-    return g_selected_rectangle
+    return ax
 
 def grid(dataset, band=1, nodata=False):
     xmin, ymin, xmax, ymax = bounds(dataset)
@@ -106,3 +107,12 @@ def grid(dataset, band=1, nodata=False):
     if nodata:
         z[z==dataset.nodata] = np.nan
     return x, y, z
+
+def mask(filename):
+    dataset = open(filename)
+    if dataset.count == 4:
+        m = dataset.read(4)
+        m[m==255] = 1.0
+    else:
+        print('Ops, no mask implemented for elevatio, only rgb image')
+    return m
