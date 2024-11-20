@@ -6,6 +6,9 @@ from matplotlib.widgets  import RectangleSelector
 from matplotlib import cbook, cm
 from matplotlib.colors import LightSource
 
+from shapely.geometry import Polygon
+from shapely.affinity import scale
+
 g_figure_size = (18, 18) # Inches
 g_surface_count = 200 # Points
 g_selected_rectangle = []
@@ -84,3 +87,23 @@ def contour(x, y, z, levels = 50, colormap = cm.jet, block=False):
     plt.tight_layout()
     plt.grid()
     plt.show(block=block)
+
+def toPoints(x,y):
+    points = list(zip(x,y))
+    return points
+
+def fromPoints(points):
+    xy = np.array(points)
+    return xy[:,0], xy[:,1]
+
+def toPolygon(x,y):
+    return Polygon(toPoints(x,y))
+
+def fromPolygon(polygon):
+    return fromPoints( list(polygon.exterior.coords) )
+
+def offset(x,y,distance):
+    polygon = toPolygon(x,y)
+    offset_polygon = polygon.buffer(distance)
+    xo, yo = fromPolygon(offset_polygon)
+    return xo, yo

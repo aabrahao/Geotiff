@@ -1,6 +1,7 @@
 from rasterio import open
 from pprint import pprint
 import rasterio.plot as rplt
+from rasterio import transform
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -8,6 +9,8 @@ from matplotlib.widgets  import RectangleSelector
 
 from matplotlib import cbook, cm
 from matplotlib.colors import LightSource
+
+from skimage import measure
 
 g_figure_size = (18, 18) # Inches
 g_surface_count = 200 # Points
@@ -67,34 +70,25 @@ def info(dataset):
     print('Nodata', dataset.nodata)
     pprint(dataset.profile)
 
-def show(dataset, colormap = cm.gist_earth, block=True):
-    global g_selected_rectangle
-    fig = plt.figure(figsize=g_figure_size)
-    ax = fig.add_subplot(1,1,1)
+def show(dataset, colormap = cm.gist_earth, axes = None):
+    # Axes
+    if not axes:
+        fig = plt.figure(figsize=g_figure_size)
+        ax = fig.add_subplot(1,1,1)
+    else:
+        ax = axes
+    # Image or elevation?    
     if dataset.count == 1:
         rplt.show(dataset, ax=ax, cmap = colormap)
     else:
         rplt.show(dataset, ax=ax)
-
+    # Decoration
     plt.tight_layout()
     plt.grid()
-
-    #g_selected_rectangle = []
-    #def showSelectorCallback(eclick, erelease):
-    #    global g_selected_rectangle
-    #    x1, y1 = eclick.xdata, eclick.ydata
-    #    x2, y2 = erelease.xdata, erelease.ydata
-    #    x = min(x1,x2)
-    #    y = min(y1,y2)
-    #    w = np.abs(x1-x2)
-    #    h = np.abs(y1-y2)
-    #    g_selected_rectangle = [x,y,w,h]
-    #rs = RectangleSelector(ax, showSelectorCallback, 
-    #                       drawtype='box', useblit=False, button=[1], 
-    #                       minspanx=5, minspany=5, spancoords='data', 
-    #                       interactive=True)
-
-    plt.show(block=block)
+    # Show
+    if not axes:
+        plt.show()
+    # Return ax for decoration
     return ax
 
 def grid(dataset, band=1, nodata=False):
@@ -110,9 +104,17 @@ def grid(dataset, band=1, nodata=False):
 
 def mask(filename):
     dataset = open(filename)
+    # Image or elevation
     if dataset.count == 4:
-        m = dataset.read(4)
-        m[m==255] = 1.0
+        mask = dataset.read(4)
+        mask[mask==0] = 0.0
+        mask[mask==255] = 1.0
     else:
         print('Ops, no mask implemented for elevatio, only rgb image')
-    return m
+        return None
+    # Extract contourns
+    contours = measure.find_contours(mask, 0.5)[0]
+    i = contours[:, 1]
+    j = contours[:, 0]
+    x,y = transform.xy(dataset.transform, j,i)
+    return np.array(x), np.array(y)
