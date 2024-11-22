@@ -8,7 +8,7 @@ import Print as prt
 def show(data, ax):
     data.info()
     data.show(axes=ax)
-    x,y = data.fence()
+    x,y = data.boundary()
     if x.size != 0 and y.size != 0:
         ax.plot(x,y, color='red', linewidth = 4)
     ax.set_title(data.filename)
