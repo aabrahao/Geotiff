@@ -36,3 +36,22 @@ points = toPoints(x,y)
 print(points)
 print(len(points))
 
+x = np.empty(10)
+print(x)
+print(x.size)
+print(x.shape)
+print(x.dtype)
+
+x = np.empty(0)
+print(x)
+print(x.size)
+print(x.shape)
+print(x.dtype)
+
+
+n = 10
+
+for i, j in zip(range(0, n, 1), range(0, 2*n, 2)):
+    print(i, j)
+
+print()

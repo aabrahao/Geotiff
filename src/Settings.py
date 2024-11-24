@@ -1,5 +1,5 @@
 def figureSize():
-    return (18, 18) # Inches
+    return (28, 88) # Inches
 
 def surfaceCount():
     return 200

@@ -4,7 +4,7 @@ import Geotiff as gt
 def main(): 
     files = sys.list('data/examples/*.tif*')
     for file in files:
-        dataset = gt.Region( file )
+        dataset = gt.Dataset( file )
         dataset.info()
         dataset.show(block=True)
     sys.pause()

@@ -1,7 +1,7 @@
 import System as sys
 import Geotiff as gt
 import numpy as np
-import Draw as drw
+import Cad as cad
 import matplotlib.pyplot as plt
 import Print as prt
 
@@ -13,27 +13,30 @@ def toFoot(m):
 
 def main():
 
-    cell = gt.Region('data/rifle/terrain-masked.tif')
+    cell = gt.Dataset('data/rifle/terrain-masked.tif')
 
     cell.info()
 
-    fig, ax = plt.subplots(figsize=(30,28))
-    cell.show(axes=ax)
+    ax = cad.plots()
+    cell.show(ax)
+
+    # Data
+    z = cell.data()
 
     # Indexes
-    n, m = cell.size()
-    xi, yi = cell.world(0,0)
-    xn, yn = cell.world(n,m)
-    drw.circle(ax, xi, yi, 10, color='red')
-    drw.circle(ax, xn, yn, 10, color='red')
-    drw.line(ax, xi, yi, xn, yn, color='red')
+    n, m = z.shape
+    xi, yi = cell.toWorld(0,0)
+    xn, yn = cell.toWorld(n,m)
+    cad.point(ax, xi, yi, color='red')
+    cad.point(ax, xn, yn, color='red')
+    cad.line(ax, xi, yi, xn, yn, color='red')
 
     # World
     w, h = cell.width()
     x, y = cell.origin()
-    drw.circle(ax, x, y, 10, color='blue')
-    drw.circle(ax, x + w, y + h, 10, color='blue')
-    drw.line(ax, x, y, x + w, y + h, color='blue')
+    cad.point(ax, x, y, color='blue')
+    cad.point(ax, x + w, y + h, color='blue')
+    cad.line(ax, x, y, x + w, y + h, color='blue')
         
     ax.set_xlim(x, x + w)
     ax.set_ylim(y, y + h)
@@ -47,11 +50,11 @@ def main():
     hs = toMeter(30)
     xs = xr + toMeter(1.4)
     ys = yr - hs/2
-    drw.circle(ax, xr, yr, 1, color='orange')
-    drw.rectangle(ax, xs, ys, ws, hs, color='orange')
+    cad.point(ax, xr, yr, color='orange')
+    cad.rectangle(ax, xs, ys, ws, hs, color='orange')
 
-    ax.set_title(cell.filename)
-    plt.show()
+    cad.title(ax, cell.name)
+    cad.pause()
     
 if __name__ == "__main__":
     main() 
