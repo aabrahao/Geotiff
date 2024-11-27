@@ -69,14 +69,28 @@ def gradient(x, y, z):
     gx, gy = np.gradient(z, dx, dy)
     return gx, gy 
 
-def offset(x, y, distance):
-    polygon = toPolygon(x,y)
+###########################################
+# Polygon: xp, yp
+
+def offset(xp, yp, distance):
+    polygon = toPolygon(xp, yp)
     buffer = polygon.buffer(distance)
     return fromShapely(buffer)
 
 def contains(xp, yp, x, y):
     polygon = toPolygon(xp, yp)
     return polygon.contains(Point(x,y))
+
+def extents(xp, yp):
+    xmin = np.nanmin(xp)
+    ymin = np.nanmin(yp)
+    xmax = np.nanmax(xp)
+    ymax = np.nanmax(yp)
+    return  xmin, ymin, xmax, ymax
+
+def bounds(xp, yp):
+    xmin, ymin, xmax, ymax = extents(xp, yp)
+    return  xmin, ymin, xmax-xmin, ymax-ymin
 
 def intersect(xp, yp, x1, y1, x2, y2):
     polygon = toPolygon(xp, yp)

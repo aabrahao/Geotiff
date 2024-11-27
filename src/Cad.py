@@ -65,10 +65,13 @@ def points(ax, x, y, color='black', alpha=0.5):
     c = ax.plot(x, y, color=color, alpha=alpha, linewidth = 1, marker='o')
     return c
 
-def lines(ax, x, y, color='black', thickness=3, marker=None, alpha=0.5):
-    c = ax.plot(x, y, color=color, alpha=alpha, linewidth = thickness, marker=marker)
+def lines(ax, x, y, color='black', thickness=1, marker=None, alpha=0.5):
+    c = ax.plot(x, y, color=color, alpha=alpha, linewidth=thickness, marker=marker)
     return c
 
 def dataset(ax, data):
     data.show(ax)
 
+def area(ax,x1,y1,x2,y2,x3,y3,x4,y4, color='black', thickness=3, marker=None, alpha=0.5):
+    lines(ax,[x1,x2,x3,x4],[y1,y2,y3,y4],
+          color=color, alpha=alpha, thickness=thickness, marker=marker)
